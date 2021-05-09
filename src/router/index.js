@@ -5,6 +5,7 @@ import Login from "../views/Login.vue";
 import SignUp from "../views/SignUp.vue";
 import Profile from "../views/Profile.vue";
 import Detail from "../views/Detail.vue";
+import store from "../store/index";
 
 Vue.use(VueRouter);
 
@@ -23,17 +24,26 @@ const routes = [
     path: "/home",
     name: "Home",
     component: Home,
+    mete: {
+      requiresAuth:true,
+    },
   },
   {
     path: "/detail/:id",
     name: "detail",
     component: Detail,
+    mete: {
+      requiresAuth:true,
+    },
     props: true,
   },
   {
     path: "/profile",
     name: "profile",
     component: Profile,
+    mete: {
+      requiresAuth:true,
+    },
   },
 ];
 
@@ -41,6 +51,22 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beroreEach((to, from, next) => {
+  if (
+    to.matched.some((record) => record.mete.requiresAuth) &&
+    !store.state.auth
+  ) {
+    next({
+      path: "/",
+      query: {
+        redirect: to.fullPath,
+      },
+    });
+  } else {
+    next();
+  }
 });
 
 export default router;
